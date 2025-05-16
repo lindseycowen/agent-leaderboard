@@ -1,0 +1,73 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agent Leaderboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+  </style>
+</head>
+<body>
+  <h1>Agent Leaderboard</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Agent Name</th>
+        <th>NPN Number</th>
+        <th>Total Payout</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-body"></tbody>
+  </table>
+
+  <script>
+    const rawData = [
+      {
+        "First Name": "ALEJANDRO",
+        "Last Name": "SIMON",
+        "Agent NPN": "17222357",
+        "Amount": "42.50"
+      },
+      {
+        "First Name": "ALEJANDRO",
+        "Last Name": "SIMON",
+        "Agent NPN": "17222357",
+        "Amount": "30.00"
+      },
+      {
+        "First Name": "JANE",
+        "Last Name": "DOE",
+        "Agent NPN": "99999999",
+        "Amount": "100.00"
+      }
+    ];
+
+    const payoutMap = {};
+    rawData.forEach(record => {
+      const npn = record["Agent NPN"];
+      const name = `${record["First Name"]} ${record["Last Name"]}`;
+      const amount = parseFloat(record["Amount"]);
+
+      if (!payoutMap[npn]) {
+        payoutMap[npn] = { name, npn, total: 0 };
+      }
+      payoutMap[npn].total += amount;
+    });
+
+    const tbody = document.getElementById("leaderboard-body");
+    Object.values(payoutMap).forEach(agent => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${agent.name}</td>
+        <td>${agent.npn}</td>
+        <td>$${agent.total.toFixed(2)}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  </script>
+</body>
+</html>
