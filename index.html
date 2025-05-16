@@ -12,7 +12,7 @@
   </style>
 </head>
 <body>
-  <h1>Agent Leaderboard</h1>
+  <h1>Live Agent Leaderboard</h1>
   <table>
     <thead>
       <tr>
@@ -25,49 +25,39 @@
   </table>
 
   <script>
-    const rawData = [
-      {
-        "First Name": "ALEJANDRO",
-        "Last Name": "SIMON",
-        "Agent NPN": "17222357",
-        "Amount": "42.50"
-      },
-      {
-        "First Name": "ALEJANDRO",
-        "Last Name": "SIMON",
-        "Agent NPN": "17222357",
-        "Amount": "30.00"
-      },
-      {
-        "First Name": "JANE",
-        "Last Name": "DOE",
-        "Agent NPN": "99999999",
-        "Amount": "100.00"
-      }
-    ];
+    const SHEET_URL = "https://agent-leaderboard.vercel.app/agents.json";
 
-    const payoutMap = {};
-    rawData.forEach(record => {
-      const npn = record["Agent NPN"];
-      const name = `${record["First Name"]} ${record["Last Name"]}`;
-      const amount = parseFloat(record["Amount"]);
+    fetch(SHEET_URL)
+      .then(response => response.json())
+      .then(data => {
+        const payoutMap = {};
 
-      if (!payoutMap[npn]) {
-        payoutMap[npn] = { name, npn, total: 0 };
-      }
-      payoutMap[npn].total += amount;
-    });
+        data.agents.forEach(record => {
+          const npn = record["Agent NPN"];
+          const name = `${record["First Name"]} ${record["Last Name"]}`;
+          const amount = parseFloat(record["Amount"] || 0);
 
-    const tbody = document.getElementById("leaderboard-body");
-    Object.values(payoutMap).forEach(agent => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${agent.name}</td>
-        <td>${agent.npn}</td>
-        <td>$${agent.total.toFixed(2)}</td>
-      `;
-      tbody.appendChild(row);
-    });
+          if (!payoutMap[npn]) {
+            payoutMap[npn] = { name, npn, total: 0 };
+          }
+          payoutMap[npn].total += amount;
+        });
+
+        const tbody = document.getElementById("leaderboard-body");
+        Object.values(payoutMap).forEach(agent => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${agent.name}</td>
+            <td>${agent.npn}</td>
+            <td>$${agent.total.toFixed(2)}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        document.body.innerHTML += "<p>Error loading leaderboard data.</p>";
+        console.error("Fetch error:", error);
+      });
   </script>
 </body>
 </html>
